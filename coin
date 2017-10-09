@@ -1,0 +1,122 @@
+Function bitfinex(column)
+' https://api.bitfinex.com/v1/pubticker/   btcusd
+  On Error Resume Next
+  With CreateObject("Microsoft.XMLHTTP")
+    .Open "GET", Cells(1, column).Value, True
+    .Send
+    Do Until .ReadyState = 4
+        DoEvents
+    Loop
+
+    Set x = CreateObject("ScriptControl")
+        x.Language = "JScript"
+       
+    s = "function j(s) { return eval('(' + s + ')'); }"
+      x.AddCode s
+       Set y = x.CodeObject.j(.responsetext)
+      
+    Cells(1, column + 1).Value = y.last_price
+        
+  End With
+End Function
+
+Sub mainly()
+'[a2] = [a1]
+
+'If [a2] <> [a1] Then
+
+'End If
+For i = 3 To 10000
+    bitfinex (1)
+    bitfinex (3)
+    bitfinex (5)
+    bitfinex (7)
+    bitfinex (9)
+    bitfinex (11)
+    bitfinex (13)
+    bitfinex (15)
+    bitfinex (17)
+    Cells(i, 1).Value = [b1]
+    Cells(i, 3).Value = [d1]
+    Cells(i, 5).Value = [f1]
+    Cells(i, 7).Value = [h1]
+    Cells(i, 9).Value = [j1]
+    Cells(i, 11).Value = [l1]
+    Cells(i, 13).Value = [n1]
+    Cells(i, 15).Value = [p1]
+    Cells(i, 17).Value = [r1]
+    Cells(i, 4).Value = Cells(i, 3).Value / Cells(i, 1).Value
+    Cells(i, 8).Value = Cells(i, 7).Value / Cells(i, 1).Value
+    Cells(i, 12).Value = Cells(i, 11).Value / Cells(i, 1).Value
+    Cells(i, 16).Value = Cells(i, 15).Value / Cells(i, 1).Value
+    Cells(i, 6).Value = Cells(i, 4).Value - Cells(i, 5).Value
+    Cells(i, 10).Value = Cells(i, 8).Value - Cells(i, 9).Value
+    Cells(i, 14).Value = Cells(i, 12).Value - Cells(i, 13).Value
+    Cells(i, 18).Value = Cells(i, 16).Value - Cells(i, 17).Value
+    
+    Cells(i, 19).Value = Now
+    
+    'If i > 3 Then
+    'Cells(i, 2).Value = Cells(i, 1).Value / Cells(i - 1, 1).Value - 1
+    'End If
+    
+    t = Timer
+    While Timer < t + 0.5
+        DoEvents
+    Wend
+Next
+End Sub
+
+Function cryptowat(column)
+'https://api.cryptowat.ch/markets/prices
+  On Error Resume Next
+  r = Str(Int((100 * Rnd) + 1))
+  Set xmlhttp = CreateObject("Microsoft.XMLHTTP")
+  With xmlhttp
+    .Open "GET", "https://api.cryptowat.ch/markets/prices" + "?" + r, True
+    ' .setRequestHeader "If-Modified-Since", Format(Now, "[$-F800]dddd, mmmm dd, yyyy") & " GMT"
+    .setRequestHeader "If-Modified-Since", 0
+    .Send
+    Do Until .ReadyState = 4
+    DoEvents
+    Loop
+        
+    Set x = CreateObject("ScriptControl")
+        x.Language = "JScript"
+    s = "function j(s) { return eval('(' + s + ').result'); }"
+      x.AddCode s
+       Set y = x.Run("j", .responsetext)
+    'MsgBox CallByName(y, "bitfinex:btcusd", VbGet)
+     Cells(1, column).Value = CallByName(y, Cells(5, column), VbGet)
+     Cells(1, 19).Value = r
+    
+        
+  End With
+  Set xmlhttp = Nothing
+End Function
+
+Sub mainly2()
+    For i = 6 To 30000
+        j = 1
+        While j < 19
+            cryptowat (j)
+            Cells(i, j).Value = Cells(1, j).Value
+            j = j + 2
+        Wend
+        Cells(i, 4).Value = Cells(i, 3).Value / Cells(i, 1).Value
+        Cells(i, 8).Value = Cells(i, 7).Value / Cells(i, 1).Value
+        Cells(i, 12).Value = Cells(i, 11).Value / Cells(i, 1).Value
+        Cells(i, 16).Value = Cells(i, 15).Value / Cells(i, 1).Value
+        Cells(i, 6).Value = Cells(i, 4).Value - Cells(i, 5).Value
+        Cells(i, 10).Value = Cells(i, 8).Value - Cells(i, 9).Value
+        Cells(i, 14).Value = Cells(i, 12).Value - Cells(i, 13).Value
+        Cells(i, 18).Value = Cells(i, 16).Value - Cells(i, 17).Value
+        Cells(i, 2).Value = Cells(1, 19).Value
+        Cells(i, 19).Value = Now
+        Cells(i, 1).Select
+        t = Timer
+        While Timer < t + 0.5
+            DoEvents
+        Wend
+    Next
+End Sub
