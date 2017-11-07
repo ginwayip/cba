@@ -1,0 +1,39 @@
+Sub upselldownbuy10ge()
+    Range("c1") = Range("a6")
+    For i = 7 To 5334
+        Select Case Cells(i, 3).Value
+            Case Is <= -0.005
+                Cells(i, 4).Value = Cells(i - 1, 4).Value + 0.999 * (Cells(i - 1, 5).Value * 0.1 / Cells(i, 1).Value)
+                Cells(i, 5).Value = Cells(i - 1, 5).Value * 0.9
+                Range("c1") = Cells(i, 1).Value
+            Case Is >= 0.005
+                Cells(i, 4).Value = Cells(i - 1, 4).Value * 0.9
+                Cells(i, 5).Value = Cells(i - 1, 5).Value + Cells(i - 1, 4).Value * 0.1 * Cells(i, 1).Value * 0.999
+                Range("c1") = Cells(i, 1).Value
+            Case Else
+                Cells(i, 4).Value = Cells(i - 1, 4).Value
+                Cells(i, 5).Value = Cells(i - 1, 5).Value
+        End Select
+        Cells(1, 5).Value = (Range("i1") - Cells(i, 5).Value) / Cells(i, 4).Value
+    Next
+End Sub
+
+Sub upselldownbuy5ge()
+    Range("c1") = Range("a6")
+    For i = 7 To 5334
+        Select Case Cells(i, 3).Value
+            Case Is <= -0.005
+                Cells(i, 4).Value = Cells(i - 1, 4).Value + 0.999 * (Cells(i - 1, 5).Value * 0.2 / Cells(i, 1).Value)
+                Cells(i, 5).Value = Cells(i - 1, 5).Value * 0.8
+                Range("c1") = Cells(i, 1).Value
+            Case Is >= 0.005
+                For j = i To 5334
+                    If cell(j, 3).Value < 0.005 Then
+                        Cells(j, 4).Value = Cells(j - 1, 4).Value * 0.95
+                        Cells(i, 5).Value = Cells(i - 1, 5).Value + Cells(i - 1, 4).Value * 0.05 * Cells(i, 1).Value * 0.999
+                        Range("c1") = Cells(j, 1).Value
+                        i = j
+                        Exit For
+                    End If
+                    
+End Sub
