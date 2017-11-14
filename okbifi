@@ -76,3 +76,5 @@ Function bitfinex(column)
   End With
   Set xmlhttp = Nothing
 End Function
+https://www.okex.com/api/v1/ticker.do?symbol=btc_usdt	https://api.bitfinex.com/v1/pubticker/btcusd		https://www.okex.com/api/v1/ticker.do?symbol=ltc_usdt	https://api.bitfinex.com/v1/pubticker/ltcusd		https://www.okex.com/api/v1/ticker.do?symbol=eth_usdt	https://api.bitfinex.com/v1/pubticker/ethusd		https://www.okex.com/api/v1/ticker.do?symbol=bch_usdt	https://api.bitfinex.com/v1/pubticker/bchusd		https://www.okex.com/api/v1/ticker.do?symbol=etc_usdt	https://api.bitfinex.com/v1/pubticker/etcusd		
+btc			ltc			eth			bch			etc			
