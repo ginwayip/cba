@@ -1,0 +1,78 @@
+Function okex(column)
+  On Error Resume Next
+  Dim r As Integer
+  r = Str(Int((100 * Rnd) + 1))
+  Set xmlhttp = CreateObject("Microsoft.XMLHTTP")
+  With xmlhttp
+    .Open "GET", Cells(1, column).Value, True
+    ' .setRequestHeader "If-Modified-Since", Format(Now, "[$-F800]dddd, mmmm dd, yyyy") & " GMT"
+    .setRequestHeader "If-Modified-Since", 0
+    .Send
+    Do Until .ReadyState = 4
+    DoEvents
+    Loop
+        
+    Set x = CreateObject("ScriptControl")
+        x.Language = "JScript"
+    s = "function j(s) { return eval('(' + s + ').ticker'); }"
+      x.AddCode s
+      'Set y = x.CodeObject.j(.responsetext)
+       Set y = x.Run("j", .responsetext)
+       'MsgBox y
+    'MsgBox CallByName(y, "bitfinex:btcusd", VbGet)
+     Cells(3, column).Value = CallByName(y, Cells(5, column), VbGet)
+    End With
+    Set xmlhttp = Nothing
+End Function
+
+Sub mainly()
+    Dim j As Integer
+    For d = 1 To 15
+        Cells(4, d).Value = 6
+    Next
+    For i = 1 To 2 ^ 64
+        j = 2
+        While j < 15
+            'okex (j)
+            bitfinex (j)
+            If Cells(3, j).Value <> Cells(Cells(4, j).Value - 1, j) Then
+            Cells(Cells(4, j).Value, j).Value = Cells(3, j).Value
+            Cells(Cells(4, j).Value, 16).Value = Now
+            Cells(4, j).Value = Cells(4, j).Value + 1
+            End If
+            j = j + 3
+        Wend
+        'i = Application.WorksheetFunction.Count(Range("j:j")) + 2
+        'MsgBox i
+        t = Timer
+        While Timer < t + 0.2
+            DoEvents
+        Wend
+    Next i
+End Sub
+
+Function bitfinex(column)
+' https://api.bitfinex.com/v1/pubticker/   btcusd
+  On Error Resume Next
+  r = Str(Int((100 * Rnd) + 1))
+  Set xmlhttp = CreateObject("Microsoft.XMLHTTP")
+  With xmlhttp
+    .Open "GET", Cells(1, column).Value + "?" + r, True
+    .setRequestHeader "If-Modified-Since", 0
+    .Send
+    Do Until .ReadyState = 4
+        DoEvents
+    Loop
+
+    Set x = CreateObject("ScriptControl")
+        x.Language = "JScript"
+       
+    s = "function j(s) { return eval('(' + s + ')'); }"
+      x.AddCode s
+       Set y = x.CodeObject.j(.responsetext)
+      
+    Cells(3, column).Value = y.last_price
+        
+  End With
+  Set xmlhttp = Nothing
+End Function
