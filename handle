@@ -1,0 +1,60 @@
+Option Explicit
+Public Declare Function EnumWindows Lib "user32" (ByVal lpEnumFunc As Long, ByVal lParam As Long) As Long
+Public Declare Function EnumChildWindows Lib "user32" (ByVal hWndParent As Long, ByVal lpEnumFunc As Long, ByVal lParam As Long) As Long
+Public Declare Function GetWindowText Lib "user32" Alias "GetWindowTextA" (ByVal hwnd As Long, ByVal lpString As String, ByVal cch As Long) As Long
+Public Declare Function GetClassName Lib "user32" Alias "GetClassNameA" (ByVal hwnd As Long, ByVal lpClassName As String, ByVal nMaxCount As Long) As Long
+Public Ar, N
+Public T As String
+Public Function EnumWndProc(ByVal MyHwnd As Long, ByVal MyParam As Long) As Long '回调函数
+    Dim Title As String * 255
+    Dim ClassName As String * 255
+    GetWindowText MyHwnd, Title, 255
+    GetClassName MyHwnd, ClassName, 255
+    If (InStr(Title, Chr(0&)) > 0&) Then
+        Title = Left(Title, InStr(Title, Chr(0)) - 1)
+        ClassName = Left(ClassName, InStr(ClassName, Chr(0)) - 1)
+        'If Len(Title) > 0 Then
+        If Len(Trim(Title)) > 0 Then
+            N = N + 1
+            ReDim Preserve Ar(1 To 3, 1 To N)
+            Ar(1, N) = Trim(Title)
+            Ar(2, N) = MyHwnd
+            Ar(3, N) = Trim(ClassName)
+        End If
+    End If
+    EnumWndProc = True
+End Function
+
+'===================================================================================================================================
+
+Private Declare Function SetForegroundWindow Lib "user32.dll" (ByVal hwnd As Long) As Long
+Private Declare Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+Private Sub Us()
+    ThisWorkbook.ActiveSheet.Cells.Clear
+    ReDim Ar(1 To 3, 1 To 1)
+    Ar(1, 1) = "标题"
+    Ar(2, 1) = "句柄"
+    Ar(3, 1) = "类名"
+    N = 1
+    EnumWindows AddressOf EnumWndProc, 0&
+    Range("A1:C" & N).Value = Application.Transpose(Ar)
+
+End Sub
+
+Sub aa()
+m = 0
+Dim r As Range
+H = Application.WorksheetFunction.CountA(Sheet1.Range("A:A"))
+For Each r In Range("A1:A" & H) '把[A1:Z100] 改成你的查找mm所在单元格区域就行
+If InStr(r, "酷狗") Then
+m = m + 1
+Range("D" & m) = r.Offset(0, 1)
+'r.Interior.ColorIndex = 4
+'Else
+'r.Interior.ColorIndex = 0
+End If
+Next
+End Sub
+
+'======================================================================
+SetForegroundWindow FindWindow(vbNullString, "frm")
