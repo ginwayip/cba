@@ -1,0 +1,118 @@
+模块1：
+Private Declare Sub keybd_event Lib "user32" (ByVal bVk As Byte, ByVal bScan As Byte, ByVal dwFlags As Long, ByVal dwExtraInfo As Long)
+Enum JpMode
+      theScreen = 0 '全屏截图
+      theForm = 1 '当前焦点窗口截图
+End Enum
+ 
+Private Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
+Private Declare Function GetClipboardData Lib "user32" (ByVal wFormat As Long) As Long
+Private Declare Function CloseClipboard Lib "user32" () As Long
+Private Declare Function OpenClipboard Lib "user32" (ByVal hWnd As Long) As Long
+Private Declare Function OleCreatePictureIndirect Lib "olepro32.dll" (PicDesc As PicBmp, RefIID As Guid, ByVal fPictureOwnsHandle As Long, IPic As IPicture) As Long
+Private Const CF_BITMAP = 2
+Private Type PicBmp
+    Size As Long
+    Type As Long
+    hBmp As Long
+    hPal As Long
+    Reserved As Long
+End Type
+ 
+Private Type Guid
+    Data1 As Long
+    Data2 As Integer
+    Data3 As Integer
+    Data4(0 To 7) As Byte
+End Type
+Function ApiGetClipBmp() As IPicture
+On Error Resume Next
+    Dim Pic As PicBmp, IID_IDispatch As Guid
+    OpenClipboard 0 'OpenClipboard
+    With IID_IDispatch
+        .Data1 = &H20400
+        .Data4(0) = &HC0
+        .Data4(7) = &H46
+    End With
+ 
+    With Pic
+        .Size = Len(Pic)
+        .Type = 1
+        .hBmp = GetClipboardData(CF_BITMAP)
+    End With
+     
+    OleCreatePictureIndirect Pic, IID_IDispatch, 1, ApiGetClipBmp
+    'stdole.SavePicture ApiGetClipBmp, "c:\clipboard.bmp"
+    CloseClipboard
+End Function
+Function KeyJp(Optional ByVal TheMode As JpMode = theScreen) As IPictureDisp
+      Call keybd_event(vbKeySnapshot, TheMode, 0, 0) '
+      DoEvents
+      Sleep ByVal 100
+      Call keybd_event(vbKeySnapshot, 1, 2, 0)
+      DoEvents
+      Sleep ByVal 100
+      'Set KeyJp = Clipboard.GetData
+End Function
+Sub dd()
+  Dim f$
+    f = "D:\2.bmp"
+    If Dir(f) <> "" Then
+    Kill f
+    End If
+  Range("A1").Select
+  KeyJp (theForm)
+  SavePicture ApiGetClipBmp, "D:\2.bmp"
+  ActiveSheet.Pictures.Insert( _
+        "D:\2.bmp").Select
+  Selection.ShapeRange.Width = 382.6771653543
+  
+End Sub
+
+
+
+This workbook:
+
+Private Sub Workbook_Open()
+    Application.OnKey "{F1}", "dd"
+    UserForm1.Show 0
+End Sub
+
+
+
+Userform1:
+
+Private Declare Function GetForegroundWindow Lib "user32.dll" () As Long
+Private Declare Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As Long
+Private Declare Function SetWindowPos Lib "user32" (ByVal hWnd As Long, ByVal hWndInsertAfter As Long, ByVal X As Long, ByVal Y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
+Private Const HWND_TOPMOST = -1
+Private Const SWP_NOMOVE = 2
+Private Const SWP_NOSIZE = 1
+Dim hWnd As Long
+
+Private Sub CommandButton1_Click()
+    Dim f$
+    f = "D:\2.bmp"
+    If Dir(f) <> "" Then
+    Kill f
+    End If
+  Range("A1").Select
+  KeyJp (theForm)
+  SavePicture ApiGetClipBmp, "D:\2.bmp"
+  ActiveSheet.Pictures.Insert( _
+        "D:\2.bmp").Select
+  Selection.ShapeRange.Width = 382.6771653543
+End Sub
+
+Private Sub UserForm_Deactivate()
+    'Application.OnKey "{F1}", "dd"
+    Dim ab
+    ab = 1
+    Range("A2").Value = GetForegroundWindow()
+End Sub
+
+
+Private Sub UserForm_Initialize()
+    hWnd = FindWindow(vbNullString, Me.Caption)
+    SetWindowPos hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE Or SWP_NOSIZE
+End Sub
