@@ -1,0 +1,26 @@
+Private Sub Worksheet_SelectionChange(ByVal Target As Range)
+    Static OldRow As Long
+    Static Count As Integer
+    If Target.Row > 1 Then
+    Count = Count + 1
+    If Count = 1 Then
+        Rows(Target.Row).Interior.Color = vbYellow
+    Else
+        Rows(Target.Row).Interior.Color = vbYellow
+        Rows(OldRow).Interior.Color = xlNone
+    End If
+    OldRow = Target.Row
+    End If
+End Sub
+
+
+=====================================================================
+
+Sub a()
+    Dim r As Range
+    For Each r In Range("i1:i100")
+    If r = 1 Then
+        r.EntireRow.Interior.ColorIndex = 6
+    End If
+    Next
+End Sub
